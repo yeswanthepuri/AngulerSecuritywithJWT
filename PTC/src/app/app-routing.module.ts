@@ -34,7 +34,7 @@ const routes: Routes = [
     path: 'categories',
     component: CategoryListComponent,
     canActivate: [AuthGuard],
-    data: { claimType: 'canAccessCategory' }
+    data: { claimType: 'CanAccessCategories' }
   },
   {
     path: '', redirectTo: 'dashboard', pathMatch: 'full'

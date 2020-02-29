@@ -17,12 +17,14 @@ export class AuthGuard implements CanActivate {
     let clainType = next.data["claimType"];
 
     if (this.securityService.securityObject.isAuthenticated &&
-      this.securityService.securityObject[clainType]) {
+      this.securityService.hasClaim(clainType)) {
       return true;
     }
     else {
       this.router.navigate(["Login"], 
-      { queryParams: { redirectUrl: state.url } });
+      { 
+        queryParams: { redirectUrl: state.url } 
+      });
       return false;
     }
 

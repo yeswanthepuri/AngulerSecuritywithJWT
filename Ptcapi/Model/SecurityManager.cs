@@ -70,20 +70,8 @@ namespace PtcApi.Security
             ret.IsAuthenticated = true;
             ret.BearerToken = new Guid().ToString();
 
-            claims = GetUserClaimes(user);
-            try
-            {
-                foreach (AppUserClaim claim in claims)
-                {
-                    typeof(AppUserAuth).GetProperty(claim.ClaimType)
-                    .SetValue(ret, Convert.ToBoolean(claim.ClaimValue), null);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Exception while retreving a claim1", ex);
-            }
-            ret.BearerToken=BuildJwtToken(ret);
+            ret.Claims = GetUserClaimes(user);
+            ret.BearerToken = BuildJwtToken(ret);
             return ret;
         }
 
@@ -95,12 +83,11 @@ namespace PtcApi.Security
             jwtClaims.Add(new Claim(JwtRegisteredClaimNames.Sub, authUser.UserName));
             jwtClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
 
-            jwtClaims.Add(new Claim("IsAuthenticated", authUser.IsAuthenticated.ToString().ToLower()));
-            jwtClaims.Add(new Claim("CanAccessProducts", authUser.CanAccessProducts.ToString().ToLower()));
-            jwtClaims.Add(new Claim("CanAddProduct", authUser.CanAddProduct.ToString().ToLower()));
-            jwtClaims.Add(new Claim("CanSaveProduct", authUser.CanSaveProduct.ToString().ToLower()));
-            jwtClaims.Add(new Claim("CanAccessCategories", authUser.CanAccessCategories.ToString().ToLower()));
-            jwtClaims.Add(new Claim("CanAddCategory", authUser.CanAddCategory.ToString().ToLower()));
+            foreach (var claim in authUser.Claims)
+            {
+                jwtClaims.Add(new Claim(claim.ClaimType, claim.ClaimValue));
+            }
+             jwtClaims.Add(new Claim("IsAuthenticated", authUser.IsAuthenticated.ToString().ToLower()));
 
             var token = new JwtSecurityToken(
             issuer: Settings.Issuer,
